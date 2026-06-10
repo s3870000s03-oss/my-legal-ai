@@ -1,16 +1,90 @@
-# React + Vite
+⚖️ 생활법률 AI 상담 에이전트
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Context Engineering + 실시간 판례 검색 기반 AI 법률 분석 도구
 
-Currently, two official plugins are available:
+일반 시민이 변호사 상담 전, 자신의 법률 상황을 분석하고 유사 판례를 찾아볼 수 있는 AI 상담 웹 서비스입니다.
+과목: AI도구 활용
+제작: 스마트콘텐츠학과 2021145053 이기성
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+📌 프로젝트 소개
+법률 문제를 겪는 일반인은 어떤 법이 적용되는지, 비슷한 사례는 어떻게 판결됐는지 알기 어렵습니다.
+이 서비스는 사용자가 자연어로 상황을 설명하면, AI가 관련 법 조항과 실제 대법원 판례를 분석해
+예상 결과와 해결 방안을 제시합니다.
 
-## React Compiler
+⚠️ 본 서비스는 참고용 정보 제공 도구이며, 법률 조언이 아닙니다. 실제 법률 문제는 반드시 변호사와 상담하시기 바랍니다.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+✨ 주요 기능
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+5개 법률 카테고리: 임대차 분쟁 / 절도 / 사기 / 교통사고 / 온라인 거래 사기
+채팅 기반 상담 흐름: 카테고리 선택 → 상황 입력 → 단계별 보충 질문 → 최종 분석 → 추가 질문
+AI 키워드 추출 기반 판례 검색: 사용자 상황을 사건명 매칭형 법률 키워드로 변환해 검색
+2단계 판례 선별: 수집된 판례 중 AI가 사용자 상황과 가장 유사한 5개를 선별
+6단계 상세 분석: 적용 법 조항 / 핵심 분석 / 유사 판례 비교 / 예상 결과(확률 %) / 해결 방안 / 면책 조항
+AI 지식 보완: 판례 API 결과가 부족하면 AI 학습 지식으로 보완 ("(AI 지식 기반)" 표시)
+맥락 유지 추가 질문: 분석 후에도 이어지는 후속 질문 가능
+
+
+🛠️ 기술 스택
+구분사용 기술프론트엔드React, ViteAI 분석Groq API (llama-3.3-70b-versatile)법률 데이터대법원 OpenAPI (국가법령정보 공동활용)라우팅react-router-dom
+
+🔑 사용 API (3종)
+
+Groq API — AI 분석 엔진 (키워드 추출 · 판례 선별 · 최종 분석 · 추가 질문 응답)
+대법원 OpenAPI — 실시간 판례 목록 검색 및 본문 조회
+promptBuilder — 법령 + 판례 + 사용자 입력을 자동 조립하는 프롬프트 생성기
+
+
+📁 프로젝트 구조
+my-legal-ai/
+├── src/
+│   ├── pages/
+│   │   ├── ChatPage.jsx       # 메인 채팅 상담 화면
+│   │   └── InfoPage.jsx       # 서비스 안내
+│   ├── data/
+│   │   ├── cases.json         # 판례 샘플 데이터
+│   │   └── laws.json          # 법령 데이터
+│   ├── utils/
+│   │   ├── api.js             # Groq AI API 호출
+│   │   ├── lawApi.js          # 대법원 판례 API + 키워드 추출 + 판례 선별
+│   │   └── promptBuilder.js   # 프롬프트 자동 조립
+│   ├── App.jsx
+│   └── main.jsx
+├── .env                       # API 키 (업로드 제외)
+└── package.json
+
+⚙️ 동작 흐름
+사용자 상황 입력
+   ↓
+AI가 사건명 매칭형 법률 키워드 8~10개 추출
+   ↓
+키워드별 대법원 API 병렬 검색 → 판례 28~29건 수집 (중복 제거)
+   ↓
+AI가 사용자 상황과 가장 유사한 판례 5건 선별
+   ↓
+선별된 판례 + 관련 법령 + 사용자 입력으로 프롬프트 조립
+   ↓
+AI가 6단계 상세 분석 결과 생성
+
+🚀 실행 방법
+bash# 1. 의존성 설치
+npm install
+
+# 2. 환경변수 설정 (.env 파일 생성)
+# VITE_GROQ_API_KEY=발급받은_Groq_키
+# VITE_LAW_API_KEY=발급받은_대법원_OC키
+
+# 3. 개발 서버 실행
+npm run dev
+
+.env 파일은 보안상 저장소에 포함되어 있지 않습니다. 실행하려면 직접 API 키를 발급받아 입력해야 합니다.
+
+
+📹 데모 영상
+demo.mp4 파일을 참고해주세요.
+
+📝 향후 개선 방향
+
+판례 본문 조회 시 CORS 우회를 위한 백엔드 프록시 서버 도입
+카테고리 확대 (노동, 의료분쟁 등)
+분석 결과 PDF 저장 기능
